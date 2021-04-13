@@ -16,16 +16,39 @@ server.listen(port, () => {
 
 app.get("/knockknock", (req, res) => res.send("Who's there?"));
 
-const io = socketIo(server);
+const io = socketIo(server, {
+  cors: {
+    origin: "http://localhost:3000",
+  },
+});
 
-let count = 0;
+const state = {
+  count: 0,
+  clapping: 0,
+};
 
 io.on("connect", (socket) => {
-  count++;
-  console.log("Connected client", count);
+  state.count++;
+  console.log("Connected client", state);
 
   socket.on("disconnect", () => {
-    console.log("Disconnected client", count);
-    count--;
+    console.log("Disconnected client", state);
+    state.count--;
+    io.sockets.emit("update", state);
+  });
+
+  socket.on("enter", (name) => {
+    console.log(`${name} joined!`);
+    io.sockets.emit("update", state);
+  });
+
+  socket.on("clap", () => {
+    state.clapping++;
+    io.sockets.emit("update", state);
+  });
+
+  socket.on("end_clap", () => {
+    state.clapping--;
+    io.sockets.emit("update", state);
   });
 });
