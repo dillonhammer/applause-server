@@ -48,18 +48,21 @@ io.on("connect", (socket) => {
     const name = state.socketToName.get(socket.id);
     state.names.delete(name);
     state.socketToName.delete(socket.id);
-    state.count--;
-    state.clapping.splice(name);
+    state.count = Math.max(state.count - 1, 0);
+    if (state.clapping.includes(name))
+      state.clapping.splice(state.clapping.indexOf(name));
+    console.log("After disconnect", state);
     io.sockets.emit("update", state);
   });
 
   socket.on("enter", (name) => {
-    if (state.names.has(name)) {
+    if (state.names.has(name) && name !== "root") {
       socket.emit("error", "Name already taken! :(");
     } else {
       state.names.add(name);
       state.socketToName.set(socket.id, name);
-      console.log(`${name} joined!`);
+      console.log(`${name} joined!`, state);
+      socket.emit("welcome", state);
       io.sockets.emit("update", state);
     }
   });
