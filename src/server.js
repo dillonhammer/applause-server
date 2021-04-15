@@ -18,7 +18,7 @@ app.get("/knockknock", (req, res) => res.send("Who's there?"));
 
 const io = socketIo(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: "https://pit-applause.herokuapp.com/",
   },
 });
 
