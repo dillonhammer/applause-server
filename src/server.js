@@ -78,7 +78,8 @@ io.on("connect", (socket) => {
   });
 
   socket.on("end_clap", (name) => {
-    state.clapping.splice(state.clapping.indexOf(name), 1);
+    if (state.clapping.includes(name))
+      state.clapping.splice(state.clapping.indexOf(name), 1);
     console.log("end_clap", name);
     io.sockets.emit("update", state);
   });
@@ -90,7 +91,8 @@ io.on("connect", (socket) => {
   });
 
   socket.on("end_airhorn", (name) => {
-    state.airhorns.splice(state.airhorns.indexOf(name), 1);
+    if (state.airhorns.includes(name))
+      state.airhorns.splice(state.airhorns.indexOf(name), 1);
     console.log("end_airhorn", name);
     io.sockets.emit("update", state);
   });
