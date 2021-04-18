@@ -41,17 +41,19 @@ const state = {
 
 io.on("connect", (socket) => {
   state.count++;
-  console.log("Connected client", state);
+  console.log("New client connected");
 
   socket.on("disconnect", () => {
-    console.log("Disconnected client", state);
+    console.log(
+      state.socketToName.get(socket.id) || "Unknown client",
+      "disconnected"
+    );
     const name = state.socketToName.get(socket.id);
     state.names.delete(name);
     state.socketToName.delete(socket.id);
     state.count = Math.max(state.count - 1, 0);
     if (state.clapping.includes(name))
-      state.clapping.splice(state.clapping.indexOf(name));
-    console.log("After disconnect", state);
+      state.clapping.splice(state.clapping.indexOf(name), 1);
     io.sockets.emit("update", state);
   });
 
@@ -61,7 +63,7 @@ io.on("connect", (socket) => {
     } else {
       state.names.add(name);
       state.socketToName.set(socket.id, name);
-      console.log(`${name} joined!`, state);
+      console.log(`${name} joined!`);
       socket.emit("welcome", state);
       io.sockets.emit("update", state);
     }
@@ -69,12 +71,13 @@ io.on("connect", (socket) => {
 
   socket.on("clap", (name) => {
     state.clapping.push(name);
+    console.log("clap", name);
     io.sockets.emit("update", state);
   });
 
   socket.on("end_clap", (name) => {
-    state.clapping.splice(state.clapping.indexOf(name));
-    console.log("end_clap", state);
+    state.clapping.splice(state.clapping.indexOf(name), 1);
+    console.log("end_clap", name);
     io.sockets.emit("update", state);
   });
 
