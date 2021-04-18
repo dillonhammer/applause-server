@@ -29,6 +29,7 @@ Example State:
   socketToName: Map<string, string>,
   count: number,
   clapping: string[],
+  airhorns: string[],
 }
 */
 
@@ -37,6 +38,7 @@ const state = {
   socketToName: new Map(),
   count: 0,
   clapping: [],
+  airhorns: [],
 };
 
 io.on("connect", (socket) => {
@@ -78,6 +80,18 @@ io.on("connect", (socket) => {
   socket.on("end_clap", (name) => {
     state.clapping.splice(state.clapping.indexOf(name), 1);
     console.log("end_clap", name);
+    io.sockets.emit("update", state);
+  });
+
+  socket.on("airhorn", (name) => {
+    state.airhorns.push(name);
+    console.log("airhorn", name);
+    io.sockets.emit("update", state);
+  });
+
+  socket.on("end_airhorn", (name) => {
+    state.airhorns.splice(state.airhorns.indexOf(name), 1);
+    console.log("end_airhorn", name);
     io.sockets.emit("update", state);
   });
 
