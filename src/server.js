@@ -22,23 +22,29 @@ const io = socketIo(server, {
   },
 });
 
-/*
-Example State:
-{
-  names: Set<string>,
-  socketToName: Map<string, string>,
-  count: number,
-  clapping: string[],
-  airhorns: string[],
-}
-*/
-
+/**
+ * @param names The people in the audience
+ * @param socketToName Mapping of socket IDs to person's name
+ * @param count Count of total clients connected
+ * @param sounds Map of sound_name to list of people currently doing that sound, e.g. "clap" -> ["Dillon", "Alex"]
+ */
 const state = {
   names: new Set(),
   socketToName: new Map(),
   count: 0,
-  clapping: [],
-  airhorns: [],
+  sounds: new Map(),
+};
+
+state.sounds.set("clap", []);
+state.sounds.set("airhorn", []);
+
+const serializeState = (state) => {
+  const result = { count: state.count };
+  for (let sound of state.sounds.keys()) {
+    const names = state.sounds.get(sound);
+    result[sound] = names;
+  }
+  return result;
 };
 
 io.on("connect", (socket) => {
@@ -54,9 +60,11 @@ io.on("connect", (socket) => {
     state.names.delete(name);
     state.socketToName.delete(socket.id);
     state.count = Math.max(state.count - 1, 0);
-    if (state.clapping.includes(name))
-      state.clapping.splice(state.clapping.indexOf(name), 1);
-    io.sockets.emit("update", state);
+    for (let sound of state.sounds.keys()) {
+      const names = state.sounds.get(sound);
+      if (names.includes(name)) names.splice(names.indexOf(name), 1);
+    }
+    io.sockets.emit("update", serializeState(state));
   });
 
   socket.on("enter", (name) => {
@@ -66,42 +74,27 @@ io.on("connect", (socket) => {
       state.names.add(name);
       state.socketToName.set(socket.id, name);
       console.log(`${name} joined!`);
-      socket.emit("welcome", state);
-      io.sockets.emit("update", state);
+      socket.emit("welcome", serializeState(state));
+      io.sockets.emit("update", serializeState(state));
     }
   });
 
-  socket.on("clap", (name) => {
-    state.clapping.push(name);
-    console.log("clap", name);
-    io.sockets.emit("update", state);
-  });
+  socket.on("sound", ({ name, sound, type }) => {
+    const names = state.sounds.get(sound);
+    if (type === "START") {
+      names.push(name);
+    } else {
+      if (names.includes(name)) names.splice(names.indexOf(name), 1);
+    }
 
-  socket.on("end_clap", (name) => {
-    if (state.clapping.includes(name))
-      state.clapping.splice(state.clapping.indexOf(name), 1);
-    console.log("end_clap", name);
-    io.sockets.emit("update", state);
-  });
-
-  socket.on("airhorn", (name) => {
-    state.airhorns.push(name);
-    console.log("airhorn", name);
-    io.sockets.emit("update", state);
-  });
-
-  socket.on("end_airhorn", (name) => {
-    if (state.airhorns.includes(name))
-      state.airhorns.splice(state.airhorns.indexOf(name), 1);
-    console.log("end_airhorn", name);
-    io.sockets.emit("update", state);
+    io.sockets.emit("update", serializeState(state));
   });
 
   socket.on("clear", () => {
     state.names = new Set();
     state.socketToName = new Map();
     state.count = 1;
-    state.clapping = [];
-    io.sockets.emit("update", state);
+    state.sounds = new Map();
+    io.sockets.emit("update", serializeState(state));
   });
 });
