@@ -74,7 +74,7 @@ io.on("connect", (socket) => {
       state.names.add(name);
       state.socketToName.set(socket.id, name);
       console.log(`${name} joined!`);
-      socket.emit("welcome", serializeState(state));
+      socket.emit("welcome", name);
       io.sockets.emit("update", serializeState(state));
     }
   });
