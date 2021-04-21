@@ -37,6 +37,9 @@ const state = {
 
 state.sounds.set("clap", []);
 state.sounds.set("airhorn", []);
+state.sounds.set("nytRemix", []);
+state.sounds.set("nyt", []);
+state.sounds.set("boo", []);
 
 const serializeState = (state) => {
   const result = { count: state.count };
