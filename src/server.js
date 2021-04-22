@@ -45,7 +45,6 @@ const serializeState = (state) => {
     const names = state.sounds.get(sound);
     result[sound] = names;
   }
-  console.log(result.count);
   return result;
 };
 
