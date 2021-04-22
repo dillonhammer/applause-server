@@ -25,13 +25,11 @@ const io = socketIo(server, {
 /**
  * @param names The people in the audience
  * @param socketToName Mapping of socket IDs to person's name
- * @param count Count of total clients connected
  * @param sounds Map of sound_name to list of people currently doing that sound, e.g. "clap" -> ["Dillon", "Alex"]
  */
 const state = {
   names: new Set(),
   socketToName: new Map(),
-  count: 0,
   sounds: new Map(),
 };
 
@@ -42,16 +40,16 @@ state.sounds.set("nyt", []);
 state.sounds.set("boo", []);
 
 const serializeState = (state) => {
-  const result = { count: state.count };
+  const result = { count: state.names.size };
   for (let sound of state.sounds.keys()) {
     const names = state.sounds.get(sound);
     result[sound] = names;
   }
+  console.log(result.count);
   return result;
 };
 
 io.on("connect", (socket) => {
-  state.count++;
   console.log("New client connected");
 
   socket.on("disconnect", () => {
@@ -62,7 +60,6 @@ io.on("connect", (socket) => {
     const name = state.socketToName.get(socket.id);
     state.names.delete(name);
     state.socketToName.delete(socket.id);
-    state.count = Math.max(state.count - 1, 0);
     for (let sound of state.sounds.keys()) {
       const names = state.sounds.get(sound);
       if (names.includes(name)) names.splice(names.indexOf(name), 1);
@@ -97,7 +94,6 @@ io.on("connect", (socket) => {
   socket.on("clear", () => {
     state.names = new Set();
     state.socketToName = new Map();
-    state.count = 1;
     state.sounds = new Map();
     io.sockets.emit("update", serializeState(state));
   });
