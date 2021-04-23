@@ -41,6 +41,7 @@ state.sounds.set("boo", []);
 
 const serializeState = (state) => {
   const result = { count: state.names.size };
+  result.audience = Array.from(state.names.values());
   for (let sound of state.sounds.keys()) {
     const names = state.sounds.get(sound);
     result[sound] = names;
