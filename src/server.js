@@ -68,7 +68,7 @@ io.on("connect", (socket) => {
   });
 
   socket.on("enter", (name) => {
-    if (state.names.has(name) && name !== "root") {
+    if (state.names.has(name)) {
       socket.emit("error", "Name already taken! :(");
     } else {
       state.names.add(name);
