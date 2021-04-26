@@ -38,6 +38,9 @@ state.sounds.set("airhorn", []);
 state.sounds.set("nytRemix", []);
 state.sounds.set("nyt", []);
 state.sounds.set("boo", []);
+state.sounds.set("scream", []);
+state.sounds.set("bee-boo-boo-bop", []);
+state.sounds.set("seinfeld", []);
 
 const serializeState = (state) => {
   const result = { count: state.names.size };
