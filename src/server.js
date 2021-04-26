@@ -68,7 +68,9 @@ io.on("connect", (socket) => {
   });
 
   socket.on("enter", (name) => {
-    if (state.names.has(name)) {
+    if (name.length > 20) {
+      socket.emit("error", "Name must be 20 characters or fewer");
+    } else if (state.names.has(name)) {
       socket.emit("error", "Name already taken! :(");
     } else {
       state.names.add(name);
