@@ -1,7 +1,7 @@
 const express = require("express");
-const { createServer, Server } = require("http");
+const { createServer } = require("http");
 const cors = require("cors");
-const socketIo = require("socket.io");
+const { Server } = require("socket.io");
 const app = express();
 const port = process.env.PORT || 8001;
 require("dotenv").config();
@@ -16,7 +16,7 @@ server.listen(port, () => {
 
 app.get("/knockknock", (req, res) => res.send("Who's there?"));
 
-const io = socketIo(server, {
+const io = new Server(server, {
   cors: {
     origin: process.env.CLIENT,
   },
