@@ -6,8 +6,7 @@ const app = express();
 const port = process.env.PORT || 8001;
 require("dotenv").config();
 
-app.use(cors());
-app.options("*", cors());
+app.use(cors({ origin: process.env.CLIENT }));
 
 const server = createServer(app);
 
