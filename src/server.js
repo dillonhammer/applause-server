@@ -20,6 +20,7 @@ const io = new Server(server, {
   cors: {
     origin: process.env.CLIENT,
   },
+  path: process.env.SOCKET_PATH,
 });
 
 /**
