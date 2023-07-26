@@ -4,6 +4,7 @@ const cors = require("cors");
 const socketIo = require("socket.io");
 const app = express();
 const port = process.env.PORT || 8001;
+require("dotenv").config();
 
 app.use(cors());
 app.options("*", cors());
@@ -18,7 +19,7 @@ app.get("/knockknock", (req, res) => res.send("Who's there?"));
 
 const io = socketIo(server, {
   cors: {
-    origin: "*",
+    origin: process.env.CLIENT,
   },
 });
 
